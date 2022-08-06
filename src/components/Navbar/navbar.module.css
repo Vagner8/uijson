@@ -1,0 +1,13 @@
+.Navbar {
+  padding: .75rem 1.25rem;
+  background-color: #ee6e73;
+}
+
+.Navbar a {
+  color: white;
+  text-decoration: none;
+}
+
+.Navbar a:first-child {
+  margin-right: .75rem;
+}

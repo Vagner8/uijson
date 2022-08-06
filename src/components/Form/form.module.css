@@ -1,0 +1,11 @@
+.Form {
+  width: 50%;
+}
+
+.Form div {
+  margin-bottom: 1.25rem;
+}
+
+.Form div label {
+  display: block;
+}
