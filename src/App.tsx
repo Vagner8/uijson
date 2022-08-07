@@ -1,16 +1,21 @@
 import { Alert } from "components";
 import { useAppDispatch } from "hooks/useAppDispatch";
 import { useAppSelector } from "hooks/useAppSelector";
-import React, { ChangeEvent, useReducer } from "react";
-import { Route, Routes } from "react-router-dom";
+import React, { ChangeEvent, lazy, Suspense, useReducer } from "react";
+import { Route, Routes, useNavigate } from "react-router-dom";
 import "./App.css";
 import { Container } from "./components/Container/Container";
 import { Navbar } from "./components/Navbar/Navbar";
-import { Config } from "./pages/Config/Config";
-import { Result } from "./pages/Result/Result";
 import { appReducer, ConfigType, initialAppState, OptionType } from "./state";
 import { v4 as uuidv4 } from "uuid";
-import { isConfigType, isOptionType } from "helpers";
+import {
+  haveRadioButtonsUniqueValue,
+  isConfigType,
+  isOptionType,
+} from "helpers";
+
+const Result = lazy(() => import("./pages/Result/Result"));
+const Config = lazy(() => import("./pages/Config/Config"));
 
 export interface OnChangeType {
   (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>): void;
@@ -20,6 +25,7 @@ function App() {
   const [appState, appDispatch] = useReducer(appReducer, initialAppState);
   const { selectValueById } = useAppSelector();
   const actionApp = useAppDispatch(appDispatch);
+  const navigate = useNavigate();
   const onChange: OnChangeType = (e) => {
     actionApp.setAppState({ error: null });
     if (e.target.type === "checkbox") {
@@ -46,18 +52,22 @@ function App() {
         | ConfigType
         | OptionType
       )[];
-      actionApp.setAppState({
-        configs: arrConfigs.filter(isConfigType).map((item) => {
-          if (item.type !== "radio") {
-            return {
-              ...item,
-              itemId: uuidv4(),
-            };
-          }
-          return item;
-        }),
-        options: arrConfigs.filter(isOptionType)[0],
+      const options = arrConfigs.filter(isOptionType);
+      const configs = arrConfigs.filter(isConfigType).map((item) => {
+        if (item.type !== "radio") {
+          return {
+            ...item,
+            itemId: uuidv4(),
+          };
+        }
+        return item;
       });
+      actionApp.setAppState({ configs, options: options[0] });
+      if (options.length > 1)
+        return actionApp.setAppState({ error: "allowed only one option object" });
+      if (!haveRadioButtonsUniqueValue(configs))
+        return actionApp.setAppState({ error: "radio buttons values are not unique" });
+      if (!appState.error) navigate("/result");
     } catch (err) {
       actionApp.setAppState({ error: "incorrect input" });
     }
@@ -71,31 +81,31 @@ function App() {
       />
       <Container>
         {appState.error ? <Alert message={appState.error} /> : null}
-        <Routes>
-          <Route
-            path="/"
-            element={
-              <Config
-                configValue={selectValueById("config", appState.inputs)}
-                clickApply={clickApply}
-                onChange={onChange}
-              />
-            }
-          />
-          <Route
-            path="/result"
-            element={
-              <Result
-                error={appState.error}
-                inputs={appState.inputs}
-                configs={appState.configs}
-                options={appState.options}
-                onChange={onChange}
-                appDispatch={appDispatch}
-              />
-            }
-          />
-        </Routes>
+        <Suspense fallback={<div>loading...</div>}>
+          <Routes>
+            <Route
+              path="/"
+              element={
+                <Config
+                  configValue={selectValueById("config", appState.inputs)}
+                  clickApply={clickApply}
+                  onChange={onChange}
+                />
+              }
+            />
+            <Route
+              path="/result"
+              element={
+                <Result
+                  inputs={appState.inputs}
+                  configs={appState.configs}
+                  options={appState.options}
+                  onChange={onChange}
+                />
+              }
+            />
+          </Routes>
+        </Suspense>
       </Container>
     </div>
   );

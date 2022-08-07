@@ -11,3 +11,13 @@ export function isConfigType(obj: any): obj is ConfigType {
 export function isOptionType(obj: any): obj is OptionType {
   return "buttons" in obj
 }
+
+export function haveRadioButtonsUniqueValue(configs: ConfigType[]) {
+  const arr: (string | undefined)[] = []
+  configs.forEach(item => {
+    if (item.type === 'radio') {
+      arr.push(item.value)
+    }
+  })
+  return new Set(arr).size === arr.length
+}

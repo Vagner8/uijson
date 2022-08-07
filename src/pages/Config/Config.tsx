@@ -1,7 +1,6 @@
 import { OnChangeType } from "App";
 import { Button, Form, Textarea } from "components";
 import { isString } from "helpers";
-import { Link } from "react-router-dom";
 import styles from "./config.module.css";
 
 interface ConfigProps {
@@ -10,7 +9,11 @@ interface ConfigProps {
   clickApply: () => void;
 }
 
-export function Config({ configValue, clickApply, onChange }: ConfigProps) {
+export default function Config({
+  configValue,
+  clickApply,
+  onChange,
+}: ConfigProps) {
   console.count("Config");
   return (
     <div className={styles.Config}>
@@ -24,9 +27,7 @@ export function Config({ configValue, clickApply, onChange }: ConfigProps) {
           value={isString(configValue) ? configValue : undefined}
         />
         {configValue ? (
-          <Link to="/result">
-            <Button onClick={clickApply} type="button" title="Apply" />
-          </Link>
+          <Button onClick={clickApply} title="Apply" />
         ) : null}
       </Form>
     </div>

@@ -3,8 +3,8 @@
   background-color: #ee6e73;
 }
 
-.Navbar a {
-  color: white;
+.Navbar button {
+  background-color: white;
   text-decoration: none;
 }
 
@@ -12,11 +12,11 @@
   margin-right: .75rem;
 }
 
-.Navbar.result a:last-child,
-.Navbar a:first-child  {
-  color: black;
+.Navbar.result button:last-child,
+.Navbar button:first-child  {
+  background-color: green;
 }
 
-.Navbar.result a:first-child {
-  color: white;
+.Navbar.result button:first-child {
+  background-color: white
 }
