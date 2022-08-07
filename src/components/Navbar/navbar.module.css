@@ -11,3 +11,12 @@
 .Navbar a:first-child {
   margin-right: .75rem;
 }
+
+.Navbar.result a:last-child,
+.Navbar a:first-child  {
+  color: black;
+}
+
+.Navbar.result a:first-child {
+  color: white;
+}

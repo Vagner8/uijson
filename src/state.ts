@@ -5,6 +5,11 @@ export enum AppStrAction {
   OnChange = "OnChange",
 }
 
+export interface OptionType {
+  buttons: { title: string }[];
+  formTitle: string;
+}
+
 export interface SetAppState {
   type: AppStrAction.SetAppState;
   payload: Partial<AppState>;
@@ -16,7 +21,7 @@ export interface OnChange {
 }
 
 interface Input {
-  id: string;
+  itemId?: string;
   type: HTMLInputTypeAttribute;
   value?: string;
   checked?: boolean;
@@ -26,17 +31,75 @@ export interface ConfigType {
   itemId: string;
   label: string;
   type: HTMLInputTypeAttribute;
+  value?: string;
 }
 
 export interface AppState {
   inputs: Input[];
   configs: ConfigType[] | null;
+  options: OptionType | null;
   error: null | string;
 }
 
 export const initialAppState: AppState = {
-  inputs: [],
+  inputs: [
+    {
+      itemId: "config",
+      type: "textarea",
+      value: `[
+    {
+       "label":"count",
+       "type":"number"
+    },
+    {
+       "label":"is checked",
+       "type":"checkbox"
+    },
+    {
+       "label":"caption",
+       "type":"text"
+    },
+    {
+       "label":"description",
+       "type":"textarea"
+    },
+    {
+      "itemId": "1",
+      "label": "radio1",
+      "type": "radio",
+      "value": "radio1"
+    },
+    {
+      "itemId": "1",
+      "label": "radio2",
+      "type": "radio",
+      "value": "radio2"
+    },
+    {
+      "itemId": "2",
+      "label": "radio3",
+      "type": "radio",
+      "value": "radio3"
+    },
+    {
+      "itemId": "2",
+      "label": "radio4",
+      "type": "radio",
+      "value": "radio4"
+    },
+    {
+      "label": "Date",
+      "type": "date"
+    },
+    {
+      "buttons": [{"title": "Ok"}, {"title": "Cancel"}, {"title": "Apply"}],
+      "formTitle": "form title"
+   }
+  ]`,
+    },
+  ],
   configs: null,
+  options: null,
   error: null,
 };
 
@@ -54,12 +117,12 @@ export const appReducer: Reducer<AppState, AppReducerActions> = (
       };
     }
     case AppStrAction.OnChange: {
-      const { id, value, checked, type } = action.payload;
-      if (state.inputs.some((input) => input.id === id)) {
+      const { itemId, value, checked, type } = action.payload;
+      if (state.inputs.some((input) => input.itemId === itemId)) {
         return {
           ...state,
           inputs: state.inputs.map((input) => {
-            if (input.id === id) {
+            if (input.itemId === itemId) {
               if (type === "checkbox") {
                 return {
                   ...input,

@@ -8,8 +8,9 @@ import { Container } from "./components/Container/Container";
 import { Navbar } from "./components/Navbar/Navbar";
 import { Config } from "./pages/Config/Config";
 import { Result } from "./pages/Result/Result";
-import { appReducer, ConfigType, initialAppState } from "./state";
-import { v4 as uuidv4 } from 'uuid';
+import { appReducer, ConfigType, initialAppState, OptionType } from "./state";
+import { v4 as uuidv4 } from "uuid";
+import { isConfigType, isOptionType } from "helpers";
 
 export interface OnChangeType {
   (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>): void;
@@ -23,13 +24,13 @@ function App() {
     actionApp.setAppState({ error: null });
     if (e.target.type === "checkbox") {
       return actionApp.onChange({
-        id: e.target.id,
+        itemId: e.target.id,
         checked: (e.target as HTMLInputElement).checked,
         type: e.target.type,
       });
     }
     actionApp.onChange({
-      id: e.target.id,
+      itemId: e.target.id,
       value: e.target.value,
       type: e.target.type,
     });
@@ -41,13 +42,19 @@ function App() {
         | undefined
         | string;
       if (!configs) return;
-      const arrConfigs = JSON.parse(configs) as ConfigType[]
-      actionApp.setAppState({ configs: arrConfigs.map(item => {
-        return {
-          ...item,
-          itemId: uuidv4()
-        }
-      }) });
+      const arrConfigs = JSON.parse(configs) as (ConfigType | OptionType)[];
+      actionApp.setAppState({
+        configs: arrConfigs.filter(isConfigType).map((item) => {
+          if (item.type !== "radio") {
+            return {
+              ...item,
+              itemId: uuidv4(),
+            };
+          }
+          return item;
+        }),
+        options: arrConfigs.filter(isOptionType)[0],
+      });
     } catch (err) {
       actionApp.setAppState({ error: "incorrect input" });
     }
@@ -69,6 +76,7 @@ function App() {
                 configValue={selectValueById("config", appState.inputs)}
                 clickApply={clickApply}
                 onChange={onChange}
+                appDispatch={appDispatch}
               />
             }
           />
@@ -76,8 +84,10 @@ function App() {
             path="/result"
             element={
               <Result
+                error={appState.error}
                 inputs={appState.inputs}
                 configs={appState.configs}
+                options={appState.options}
                 onChange={onChange}
                 appDispatch={appDispatch}
               />
