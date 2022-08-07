@@ -38,11 +38,14 @@ function App() {
 
   const clickApply = () => {
     try {
-      const configs = selectValueById("config", appState.inputs) as
+      const configsValue = selectValueById("config", appState.inputs) as
         | undefined
         | string;
-      if (!configs) return;
-      const arrConfigs = JSON.parse(configs) as (ConfigType | OptionType)[];
+      if (!configsValue) return;
+      const arrConfigs = JSON.parse(configsValue) as (
+        | ConfigType
+        | OptionType
+      )[];
       actionApp.setAppState({
         configs: arrConfigs.filter(isConfigType).map((item) => {
           if (item.type !== "radio") {
@@ -76,7 +79,6 @@ function App() {
                 configValue={selectValueById("config", appState.inputs)}
                 clickApply={clickApply}
                 onChange={onChange}
-                appDispatch={appDispatch}
               />
             }
           />
